@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Gratis Analytics
  * Plugin URI: https://github.com/juslintek/gratis-analytics
- * Description: Privacy-first, cookie-free self-hosted analytics. No cookies, no cross-site tracking, GDPR-friendly anonymous page views with automatic data retention. Replaces Google Analytics + MonsterInsights ($99/yr).
+ * Description: Privacy-first, cookie-free self-hosted analytics. No cookies, no cross-site tracking, GDPR-friendly anonymous page views with automatic data retention.
  * Version: 1.0.0
  * Requires at least: 6.4
  * Requires PHP: 8.1
