@@ -108,10 +108,10 @@ final class Store {
         global $wpdb;
         $table = self::table();
 
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-        $pageviews = (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$table} WHERE created_at BETWEEN %s AND %s", $from, $to));
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-        $visitors = (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(DISTINCT visitor_hash) FROM {$table} WHERE created_at BETWEEN %s AND %s", $from, $to));
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        $pageviews = (int) $wpdb->get_var($wpdb->prepare('SELECT COUNT(*) FROM %i WHERE created_at BETWEEN %s AND %s', $table, $from, $to));
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        $visitors = (int) $wpdb->get_var($wpdb->prepare('SELECT COUNT(DISTINCT visitor_hash) FROM %i WHERE created_at BETWEEN %s AND %s', $table, $from, $to));
 
         return ['pageviews' => $pageviews, 'visitors' => $visitors];
     }
@@ -134,10 +134,13 @@ final class Store {
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
         $rows = $wpdb->get_results(
             $wpdb->prepare(
-                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name is not bindable; $column is validated against the GROUPABLE whitelist above.
-                "SELECT {$column} AS label, COUNT(*) AS views FROM {$table} WHERE created_at BETWEEN %s AND %s AND {$column} <> '' GROUP BY {$column} ORDER BY views DESC LIMIT %d",
+                "SELECT %i AS label, COUNT(*) AS views FROM %i WHERE created_at BETWEEN %s AND %s AND %i <> '' GROUP BY %i ORDER BY views DESC LIMIT %d",
+                $column,
+                $table,
                 $from,
                 $to,
+                $column,
+                $column,
                 $limit
             ),
             ARRAY_A
@@ -163,8 +166,8 @@ final class Store {
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
         $rows = $wpdb->get_results(
             $wpdb->prepare(
-                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name is not bindable; all values use %s placeholders.
-                "SELECT DATE(created_at) AS day, COUNT(*) AS views, COUNT(DISTINCT visitor_hash) AS visitors FROM {$table} WHERE created_at BETWEEN %s AND %s GROUP BY DATE(created_at) ORDER BY day ASC",
+                'SELECT DATE(created_at) AS day, COUNT(*) AS views, COUNT(DISTINCT visitor_hash) AS visitors FROM %i WHERE created_at BETWEEN %s AND %s GROUP BY DATE(created_at) ORDER BY day ASC',
+                $table,
                 $from,
                 $to
             ),
@@ -195,8 +198,8 @@ final class Store {
         $table  = self::table();
         $cutoff = gmdate('Y-m-d H:i:s', time() - ($days * DAY_IN_SECONDS));
 
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-        return (int) $wpdb->query($wpdb->prepare("DELETE FROM {$table} WHERE created_at < %s", $cutoff));
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        return (int) $wpdb->query($wpdb->prepare('DELETE FROM %i WHERE created_at < %s', $table, $cutoff));
     }
 
     /**
